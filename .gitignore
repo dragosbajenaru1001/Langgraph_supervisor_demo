@@ -1,0 +1,46 @@
+# Ignore compiled files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore log files
+*.log
+
+# Ignore Visual Studio files
+.vs/
+*.user
+*.suo
+*.cache
+*.pdb
+bin/
+obj/
+
+# Ignore IDE/editor config files
+.idea/
+.vscode/
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore packages
+*.nupkg
+*.7z
+*.zip
+
+# Ignore published output
+publish/
+*.pubxml
+profile.arm.json
+
+# Ignore Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+*.index
+temp_files/
+*.venv/
+*venv/
+*.deepeval/
