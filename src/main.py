@@ -10,6 +10,10 @@ from pydantic import BaseModel
 
 load_dotenv()
 
+# Setări pentru tracing și proiect, key se ia de la https://smith.langchain.com/
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGCHAIN_PROJECT", "langgraph-supervisor-demo")
+
 # ──────────────────────────────────────────────
 # 1. Modelul LLM
 # ──────────────────────────────────────────────

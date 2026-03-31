@@ -18,7 +18,6 @@ A multi-agent pipeline built with **LangGraph** where a **supervisor** orchestra
    - [Step 6 — Assemble the Graph](#step-6--assemble-the-graph)
    - [Step 7 — Run the Pipeline](#step-7--run-the-pipeline)
 6. [Prompts Used and Why They Work](#prompts-used-and-why-they-work)
-7. [Online Documentation](#online-documentation)
 
 ---
 
@@ -316,17 +315,20 @@ The initial state seeds the pipeline:
 | Coder | Write clean, functional Python | Include comments |
 | Writer | Draft clear, coherent text | Based on information received from prior steps |
 
+### Prompt chaining
+
+**Prompt chaining** was the technique used to build this README itself. Rather than asking for the entire implementation in one shot, each step was prompted individually — and the output of each prompt informed the next one.
+
+The chain started broad and narrowed progressively:
+
+1. **Step 1 prompt** established the foundation — initialize the LLM with Groq and load credentials. No prior context needed.
+2. **Step 2 prompt** built on that — now that the LLM exists, constrain its output to a typed routing schema using `with_structured_output`.
+3. **Step 3 prompt** built on step 2 — now that routing decisions exist, define the state that will carry those decisions through the graph.
+4. **Step 4 prompt** built on steps 2 and 3 — now that the schema and state exist, write the supervisor that reads state and returns a `Command`.
+5. **Step 5 prompt** built on step 4 — now that the supervisor is defined, write the workers that the supervisor routes to, and have them return back to it.
+6. **Step 6 prompt** built on steps 4 and 5 — now that all nodes exist, assemble them into a compiled graph.
+7. **Step 7 prompt** built on step 6 — now that the graph is compiled, invoke it with an initial state and print the result.
+
+Each prompt assumed the previous step was already working. This kept each prompt short and specific, and produced code that fit together cleanly because every step was written with the previous step's output as its input context.
+
 ---
-
-## Online Documentation
-
-| Resource | URL |
-|---|---|
-| LangGraph official docs | [https://langchain-ai.github.io/langgraph/](https://langchain-ai.github.io/langgraph/) |
-| LangGraph StateGraph API | [https://langchain-ai.github.io/langgraph/reference/graphs/](https://langchain-ai.github.io/langgraph/reference/graphs/) |
-| LangGraph multi-agent supervisor tutorial | [https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/) |
-| LangGraph `Command` object reference | [https://langchain-ai.github.io/langgraph/reference/types/#langgraph.types.Command](https://langchain-ai.github.io/langgraph/reference/types/#langgraph.types.Command) |
-| LangChain `with_structured_output` | [https://python.langchain.com/docs/how_to/structured_output/](https://python.langchain.com/docs/how_to/structured_output/) |
-| Groq API console | [https://console.groq.com/keys](https://console.groq.com/keys) |
-| langchain-groq package | [https://pypi.org/project/langchain-groq/](https://pypi.org/project/langchain-groq/) |
-| Pydantic BaseModel docs | [https://docs.pydantic.dev/latest/concepts/models/](https://docs.pydantic.dev/latest/concepts/models/) |
