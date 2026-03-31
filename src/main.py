@@ -35,11 +35,9 @@ llm_router = llm.with_structured_output(RouteDecision)
 
 MEMBERS = ["researcher", "coder", "writer"]
 SYSTEM_PROMPT = (
-    "Ești un supervisor care coordonează echipa: "
-    + ", ".join(MEMBERS)
-    + ".\n"
-    "Analizează conversația și decide care agent trebuie să acționeze următor.\n"
-    "Când task-ul este complet, returnează FINISH."
+    "Supervisor pt echipa: researcher, coder, writer.\n"
+    "Routing în ordine: researcher → coder → writer → FINISH.\n"
+    "Mesajul tău va indica cine a acționat deja. Alege următorul."
 )
 
 
@@ -48,6 +46,7 @@ SYSTEM_PROMPT = (
 # ──────────────────────────────────────────────
 class GraphState(TypedDict):
     messages: List[BaseMessage]
+    acted: List[str]  # agenți care au contribuit deja
 
 
 # ──────────────────────────────────────────────
@@ -56,11 +55,13 @@ class GraphState(TypedDict):
 def supervisor_node(
     state: GraphState,
 ) -> Command[Literal["researcher", "coder", "writer", END]]:
-    messages = [SystemMessage(content=SYSTEM_PROMPT)] + state["messages"]
-    decision = llm_router.invoke(messages)
+    acted = state.get("acted", [])
+    # Trimite doar un mesaj scurt în loc de tot istoricul
+    routing_msg = HumanMessage(content=f"Au acționat deja: {acted or 'nimeni'}. Cine urmează?")
+    decision = llm_router.invoke([SystemMessage(content=SYSTEM_PROMPT), routing_msg])
 
     goto = END if decision.next == "FINISH" else decision.next
-    return Command(goto=goto, update={"messages": state["messages"]})
+    return Command(goto=goto, update={"acted": acted})
 
 
 # ──────────────────────────────────────────────
@@ -68,16 +69,16 @@ def supervisor_node(
 # ──────────────────────────────────────────────
 def make_worker(name: str, description: str):
     def worker_node(state: GraphState) -> Command[Literal["supervisor"]]:
-        last_msg = state["messages"][-1].content
+        # Workerul primește doar primul mesaj (cererea originală) + ultimul context relevant
+        context = state["messages"][:1] + state["messages"][-2:]
         result = llm.invoke(
-            [
-                SystemMessage(content=f"Ești {name}. {description}"),
-                HumanMessage(content=last_msg),
-            ]
+            [SystemMessage(content=f"Ești {name}. {description}")]
+            + context
         )
+        acted = state.get("acted", []) + [name]
         return Command(
             goto="supervisor",
-            update={"messages": state["messages"] + [result]},
+            update={"messages": state["messages"] + [result], "acted": acted},
         )
 
     worker_node.__name__ = f"{name}_node"
@@ -129,7 +130,8 @@ if __name__ == "__main__":
                         "apoi scrie un exemplu minimal de StateGraph în Python."
                     )
                 )
-            ]
+            ],
+            "acted": [],
         }
     )
 
