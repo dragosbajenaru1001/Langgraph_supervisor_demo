@@ -330,4 +330,3 @@ The initial state seeds the pipeline:
 | Groq API console | [https://console.groq.com/keys](https://console.groq.com/keys) |
 | langchain-groq package | [https://pypi.org/project/langchain-groq/](https://pypi.org/project/langchain-groq/) |
 | Pydantic BaseModel docs | [https://docs.pydantic.dev/latest/concepts/models/](https://docs.pydantic.dev/latest/concepts/models/) |
-| LangSmith (tracing & debugging) | [https://smith.langchain.com/](https://smith.langchain.com/) |
