@@ -284,6 +284,8 @@ if __name__ == "__main__":
         }
     )
 
+    print("\n=== Au acționat ===")
+    print(result["acted"])
     print("\n=== Răspuns final ===")
     print(result["messages"][-1].content)
 ```
